@@ -1,4 +1,4 @@
-package nyct
+package nyctapi
 
 import "time"
 

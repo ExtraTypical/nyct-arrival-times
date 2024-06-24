@@ -1,12 +1,12 @@
-package arriving
+package nyct
 
 import (
 	"encoding/json"
 	"fmt"
+	format "go-nyct/internal/formatduration"
+	nyctapi "go-nyct/internal/nyct"
+	"go-nyct/internal/stations"
 	"strconv"
-	format "testapi/internal/formatduration"
-	"testapi/internal/nyct"
-	"testapi/internal/stations"
 	"time"
 )
 
@@ -20,9 +20,7 @@ type Train struct {
 	ArrivingIn string
 }
 
-func Arriving(nyctStopId int, nyctDirection string, trainsToReturn int) (Response, error) {
-
-	// nyctStopId := 354
+func CheckArrivalTimes(nyctStopId int, nyctDirection string, trainsToReturn int) (Response, error) {
 
 	// Check and convert type
 	var stopIdType interface{} = nyctStopId
@@ -35,9 +33,6 @@ func Arriving(nyctStopId int, nyctDirection string, trainsToReturn int) (Respons
 	default:
 		return Response{}, fmt.Errorf("%v is not typeof int or string. ", nyctStopId)
 	}
-
-	// nyctDirection := "N"
-	// trainsToReturn := 2
 
 	stationsResponse, err := stations.LoadStations()
 	if err != nil {
@@ -54,12 +49,12 @@ func Arriving(nyctStopId int, nyctDirection string, trainsToReturn int) (Respons
 		return Response{}, err
 	}
 
-	nyctData, err := nyct.CallNYCT()
+	nyctData, err := nyctapi.CallNYCT()
 	if err != nil {
 		return Response{}, err
 	}
 
-	trips := nyct.ProcessTrips(nyctData, localStation.GTFS_ID, nyctDirection)
+	trips := nyctapi.ProcessTrips(nyctData, localStation.GTFS_ID, nyctDirection)
 
 	// fmt.Printf("Upcoming trains for %s:\n", localStation.StationName)
 

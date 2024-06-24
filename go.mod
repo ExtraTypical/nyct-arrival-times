@@ -1,4 +1,4 @@
-module testapi
+module go-nyct
 
 go 1.22.3
 

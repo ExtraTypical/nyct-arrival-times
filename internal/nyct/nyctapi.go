@@ -1,11 +1,11 @@
-package nyct
+package nyctapi
 
 import (
+	"go-nyct/internal/protobuf"
 	"io"
 	"log"
 	"net/http"
 	"sort"
-	"testapi/internal/protobuf"
 	"time"
 
 	"google.golang.org/protobuf/proto"
