@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"go-nyct"
 	"log"
+	"nyct-arrival-times"
 )
 
 func main() {

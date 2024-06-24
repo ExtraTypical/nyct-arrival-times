@@ -3,9 +3,9 @@ package nyct
 import (
 	"encoding/json"
 	"fmt"
-	format "go-nyct/internal/formatduration"
-	nyctapi "go-nyct/internal/nyct"
-	"go-nyct/internal/stations"
+	format "nyct-arrival-times/internal/formatduration"
+	nyctapi "nyct-arrival-times/internal/nyct"
+	"nyct-arrival-times/internal/stations"
 	"strconv"
 	"time"
 )

@@ -1,10 +1,10 @@
 package nyctapi
 
 import (
-	"go-nyct/internal/protobuf"
 	"io"
 	"log"
 	"net/http"
+	"nyct-arrival-times/internal/protobuf"
 	"sort"
 	"time"
 
