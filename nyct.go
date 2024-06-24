@@ -3,11 +3,12 @@ package nyct
 import (
 	"encoding/json"
 	"fmt"
-	format "nyct-arrival-times/internal/formatduration"
-	nyctapi "nyct-arrival-times/internal/nyct"
-	"nyct-arrival-times/internal/stations"
 	"strconv"
 	"time"
+
+	format "github.com/ExtraTypical/nyct-arrival-times/internal/formatduration"
+	nyctapi "github.com/ExtraTypical/nyct-arrival-times/internal/nyct"
+	"github.com/ExtraTypical/nyct-arrival-times/internal/stations"
 )
 
 type Response struct {

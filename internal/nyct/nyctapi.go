@@ -4,9 +4,10 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"nyct-arrival-times/internal/protobuf"
 	"sort"
 	"time"
+
+	"github.com/ExtraTypical/nyct-arrival-times/internal/protobuf"
 
 	"google.golang.org/protobuf/proto"
 )

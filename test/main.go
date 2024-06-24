@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"nyct-arrival-times"
+
+	"github.com/ExtraTypical/nyct-arrival-times"
 )
 
 func main() {
