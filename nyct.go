@@ -2,8 +2,6 @@ package nyct
 
 import (
 	"encoding/json"
-	"fmt"
-	"strconv"
 	"time"
 
 	format "github.com/ExtraTypical/nyct-arrival-times/internal/formatduration"
@@ -21,19 +19,7 @@ type Train struct {
 	ArrivingIn string
 }
 
-func CheckArrivalTimes(nyctStopId int, nyctDirection string, trainsToReturn int) (Response, error) {
-
-	// Check and convert type
-	var stopIdType interface{} = nyctStopId
-	var stopId string
-	switch v := stopIdType.(type) {
-	case int:
-		stopId = strconv.Itoa(nyctStopId)
-	case string:
-		stopId = v
-	default:
-		return Response{}, fmt.Errorf("%v is not typeof int or string. ", nyctStopId)
-	}
+func CheckArrivalTimes(nyctStopId string, nyctDirection string, trainsToReturn int) (Response, error) {
 
 	stationsResponse, err := stations.LoadStations()
 	if err != nil {
@@ -45,7 +31,7 @@ func CheckArrivalTimes(nyctStopId int, nyctDirection string, trainsToReturn int)
 		return Response{}, err
 	}
 
-	localStation, err := stations.LoadLocalStation(stopId, stationsData)
+	localStation, err := stations.LoadLocalStation(nyctStopId, stationsData)
 	if err != nil {
 		return Response{}, err
 	}

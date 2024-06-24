@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	nyctStopId := 354
+	nyctStopId := "354"
 	nyctDirection := "N"
 	trainsToReturn := 2
 	response, err := nyct.CheckArrivalTimes(nyctStopId, nyctDirection, trainsToReturn)
