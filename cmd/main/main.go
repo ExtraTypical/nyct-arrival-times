@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"testapi/internal/getenv"
 	"testapi/internal/nyct"
 	"testapi/internal/stations"
 	"time"
@@ -12,10 +11,9 @@ import (
 
 func main() {
 
-	nyctStopId, err := getenv.GetEnvVariable("STOP_ID")
-	if err != nil {
-		log.Fatal(err)
-	}
+	nyctStopId := "354"
+	nyctDirection := "N"
+	trainsToReturn := 2
 
 	stationsResponse, err := stations.LoadStations()
 	if err != nil {
@@ -37,14 +35,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	trips := nyct.ProcessTrips(nyctData, localStation.GTFS_ID)
+	trips := nyct.ProcessTrips(nyctData, localStation.GTFS_ID, nyctDirection)
 
 	fmt.Printf("Upcoming trains for %s:\n", localStation.StationName)
 	for i, trip := range trips {
-		if i >= 2 {
+		if i >= trainsToReturn {
 			break
 		}
 		timeUntilArrival := time.Until(trip.ArrivalTime)
-		fmt.Printf("Route %s arriving in %v\n", trip.RouteID, timeUntilArrival.Round(time.Minute))
+		fmt.Printf("Route %s %s arriving in %v\n", trip.RouteID, trip.Direction, timeUntilArrival.Round(time.Minute))
 	}
 }

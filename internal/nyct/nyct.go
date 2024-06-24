@@ -39,12 +39,23 @@ func CallNYCT() (*protobuf.FeedMessage, error) {
 	return &nyctData, nil
 }
 
-func ProcessTrips(feedMessage *protobuf.FeedMessage, baseStationID string) []TripInfo {
+func ProcessTrips(feedMessage *protobuf.FeedMessage, baseStationID string, direction string) []TripInfo {
 	var trips []TripInfo
 	now := time.Now()
 
-	northID := baseStationID + "N"
-	southID := baseStationID + "S"
+	var targetID string
+	var targetDirection string
+
+	switch direction {
+	case "N":
+		targetID = baseStationID + "N"
+		targetDirection = "Northbound"
+	case "S":
+		targetID = baseStationID + "S"
+		targetDirection = "Southbound"
+	default:
+		return trips // Return empty slice if invalid direction
+	}
 
 	for _, entity := range feedMessage.GetEntity() {
 		tripUpdate := entity.GetTripUpdate()
@@ -54,18 +65,14 @@ func ProcessTrips(feedMessage *protobuf.FeedMessage, baseStationID string) []Tri
 
 		for _, stopTimeUpdate := range tripUpdate.GetStopTimeUpdate() {
 			stopID := stopTimeUpdate.GetStopId()
-			if stopID == northID || stopID == southID {
+			if stopID == targetID {
 				arrivalTime := time.Unix(stopTimeUpdate.GetArrival().GetTime(), 0)
 				if arrivalTime.After(now) {
-					direction := "Northbound"
-					if stopID == southID {
-						direction = "Southbound"
-					}
 					trips = append(trips, TripInfo{
 						RouteID:     tripUpdate.GetTrip().GetRouteId(),
 						TripID:      tripUpdate.GetTrip().GetTripId(),
 						ArrivalTime: arrivalTime,
-						Direction:   direction,
+						Direction:   targetDirection,
 					})
 				}
 				break // We found the update for this station, no need to check further stops
