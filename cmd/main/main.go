@@ -1,44 +1,50 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
-	"testapi/internal/protobuf"
-
-	"google.golang.org/protobuf/proto"
+	"testapi/internal/getenv"
+	"testapi/internal/nyct"
+	"testapi/internal/stations"
+	"time"
 )
 
 func main() {
 
-	CallNYCT()
-}
-
-func CallNYCT() {
-	client := &http.Client{}
-
-	NYCTUrl := "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs"
-	request, err := http.NewRequest("GET", NYCTUrl, nil)
+	nyctStopId, err := getenv.GetEnvVariable("STOP_ID")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	response, err := client.Do(request)
+	stationsResponse, err := stations.LoadStations()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	data, err := io.ReadAll(response.Body)
+	var stationsData stations.Response
+	if err := json.Unmarshal(stationsResponse, &stationsData); err != nil {
+		log.Fatal(err)
+	}
+
+	localStation, err := stations.LoadLocalStation(nyctStopId, stationsData)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer response.Body.Close()
 
-	var nyctData protobuf.FeedMessage
-	if err := proto.Unmarshal(data, &nyctData); err != nil {
+	nyctData, err := nyct.CallNYCT()
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(nyctData.Entity)
+	trips := nyct.ProcessTrips(nyctData, localStation.GTFS_ID)
+
+	fmt.Printf("Upcoming trains for %s:\n", localStation.StationName)
+	for i, trip := range trips {
+		if i >= 2 {
+			break
+		}
+		timeUntilArrival := time.Until(trip.ArrivalTime)
+		fmt.Printf("Route %s arriving in %v\n", trip.RouteID, timeUntilArrival.Round(time.Minute))
+	}
 }
