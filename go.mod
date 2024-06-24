@@ -1,4 +1,4 @@
-module nyct-arrival-times
+module github.com/ExtraTypical/nyct-arrival-times
 
 go 1.22.3
 
