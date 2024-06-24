@@ -1,4 +1,4 @@
-module go-nyct
+module nyct-arrival-times
 
 go 1.22.3
 
