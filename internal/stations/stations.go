@@ -40,7 +40,7 @@ func LoadStations() ([]byte, error) {
 func LoadLocalStation(stop_id string, stations Response) (Station, error) {
 
 	for _, stop := range stations {
-		if stop_id == stop.StationID {
+		if stop_id == stop.GTFS_ID {
 			return stop, nil
 		}
 	}

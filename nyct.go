@@ -2,6 +2,7 @@ package nyct
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	format "github.com/ExtraTypical/nyct-arrival-times/internal/formatduration"
@@ -63,6 +64,10 @@ func CheckArrivalTimes(nyctStopId string, nyctDirection string, trainsToReturn i
 		}
 
 		response.Trains = append(response.Trains, train)
+	}
+
+	if len(response.Trains) == 0 {
+		return Response{}, fmt.Errorf("no trains found for that combination: %v", localStation)
 	}
 
 	return response, nil

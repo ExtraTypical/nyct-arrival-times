@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/ExtraTypical/nyct-arrival-times/internal/protobuf"
@@ -44,19 +45,7 @@ func ProcessTrips(feedMessage *protobuf.FeedMessage, baseStationID string, direc
 	var trips []TripInfo
 	now := time.Now()
 
-	var targetID string
-	var targetDirection string
-
-	switch direction {
-	case "N":
-		targetID = baseStationID + "N"
-		targetDirection = "Northbound"
-	case "S":
-		targetID = baseStationID + "S"
-		targetDirection = "Southbound"
-	default:
-		return trips // Return empty slice if invalid direction
-	}
+	filterByDirection := direction == "N" || direction == "S" || direction == "W" || direction == "E"
 
 	for _, entity := range feedMessage.GetEntity() {
 		tripUpdate := entity.GetTripUpdate()
@@ -66,25 +55,46 @@ func ProcessTrips(feedMessage *protobuf.FeedMessage, baseStationID string, direc
 
 		for _, stopTimeUpdate := range tripUpdate.GetStopTimeUpdate() {
 			stopID := stopTimeUpdate.GetStopId()
-			if stopID == targetID {
-				arrivalTime := time.Unix(stopTimeUpdate.GetArrival().GetTime(), 0)
-				if arrivalTime.After(now) {
-					trips = append(trips, TripInfo{
-						RouteID:     tripUpdate.GetTrip().GetRouteId(),
-						TripID:      tripUpdate.GetTrip().GetTripId(),
-						ArrivalTime: arrivalTime,
-						Direction:   targetDirection,
-					})
+			stopIDBase := strings.TrimRight(stopID, "NSWE")
+
+			if stopIDBase == baseStationID {
+
+				stopDirection := stopID[len(stopID)-1:]
+				isTargetDirection := !filterByDirection || stopDirection == direction
+
+				if isTargetDirection {
+					arrivalTime := time.Unix(stopTimeUpdate.GetArrival().GetTime(), 0)
+
+					if arrivalTime.After(now) {
+						trip := TripInfo{
+							RouteID:     tripUpdate.GetTrip().GetRouteId(),
+							TripID:      tripUpdate.GetTrip().GetTripId(),
+							ArrivalTime: arrivalTime,
+							Direction:   getDirectionFromStopID(stopID),
+						}
+						trips = append(trips, trip)
+					}
 				}
-				break // We found the update for this station, no need to check further stops
+				break
 			}
 		}
 	}
 
-	// Sort trips by arrival time
 	sort.Slice(trips, func(i, j int) bool {
 		return trips[i].ArrivalTime.Before(trips[j].ArrivalTime)
 	})
 
 	return trips
+}
+
+func getDirectionFromStopID(stopID string) string {
+	directionSuffix := stopID[len(stopID)-1:]
+	switch directionSuffix {
+	case "N":
+		return "Northbound"
+	case "S":
+		return "Southbound"
+	default:
+		return "Unknown"
+	}
 }

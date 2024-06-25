@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
-	nyctStopId := "354"
+	nyctStopId := "235"
 	nyctDirection := "N"
-	trainsToReturn := 2
+	trainsToReturn := 4
 	response, err := nyct.CheckArrivalTimes(nyctStopId, nyctDirection, trainsToReturn)
 	if err != nil {
 		log.Fatal(err)
