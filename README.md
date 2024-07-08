@@ -23,7 +23,7 @@ go mod tidy
 Then run the command:
 
 ```
-go get github.com/ExtraTypical/nyct-arrival-times@v1.0.4
+go get github.com/ExtraTypical/nyct-arrival-times@v1.0.5
 ```
 
 This will download the package and allow you to use it in your code.
