@@ -7,4 +7,5 @@ type TripInfo struct {
 	TripID      string
 	ArrivalTime time.Time
 	Direction   string
+	LastStop    string
 }

@@ -50,4 +50,4 @@ func main() {
 }
 ```
 
-Get your nyctStopId by heading to [this website](https://data.ny.gov/Transportation/MTA-Subway-Stations/39hk-dx4f/data_preview) and searching for the GTFS ID of your stop.
+Get your nyctStopId by heading to [this website](https://data.ny.gov/Transportation/MTA-Subway-Stations/39hk-dx4f/data_preview) and searching for the street name of your stop. Copy over the GTFS_ID from the first column and then add that to your function

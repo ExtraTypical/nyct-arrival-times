@@ -1,6 +1,7 @@
 package nyctapi
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -66,11 +67,20 @@ func ProcessTrips(feedMessage *protobuf.FeedMessage, baseStationID string, direc
 					arrivalTime := time.Unix(stopTimeUpdate.GetArrival().GetTime(), 0)
 
 					if arrivalTime.After(now) {
+						tripID := tripUpdate.GetTrip().GetTripId()
+
+						lastStop, err := getLastStop(tripID, feedMessage)
+						if err != nil {
+							log.Printf("Warning: Last stop not found for trip %s", tripID)
+							lastStop = "Unknown"
+						}
+
 						trip := TripInfo{
 							RouteID:     tripUpdate.GetTrip().GetRouteId(),
-							TripID:      tripUpdate.GetTrip().GetTripId(),
+							TripID:      tripID,
 							ArrivalTime: arrivalTime,
 							Direction:   getDirectionFromStopID(stopID),
+							LastStop:    lastStop,
 						}
 						trips = append(trips, trip)
 					}
@@ -97,4 +107,24 @@ func getDirectionFromStopID(stopID string) string {
 	default:
 		return "Unknown"
 	}
+}
+
+func getLastStop(tripID string, feedMessage *protobuf.FeedMessage) (string, error) {
+	for _, entity := range feedMessage.GetEntity() {
+		tripUpdate := entity.GetTripUpdate()
+		if tripUpdate == nil {
+			continue
+		}
+
+		if tripUpdate.GetTrip().GetTripId() == tripID {
+			stopTimeUpdate := tripUpdate.GetStopTimeUpdate()
+			if len(stopTimeUpdate) == 0 {
+				return "", fmt.Errorf("no stop time updates found for train %s", tripID)
+			}
+
+			lastStop := stopTimeUpdate[len(stopTimeUpdate)-1]
+			return lastStop.GetStopId(), nil
+		}
+	}
+	return "", fmt.Errorf("train with ID %s not found", tripID)
 }

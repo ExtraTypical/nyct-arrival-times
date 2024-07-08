@@ -3,9 +3,10 @@ package nyct
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
-	format "github.com/ExtraTypical/nyct-arrival-times/internal/formatduration"
+	format "github.com/ExtraTypical/nyct-arrival-times/internal/format"
 	nyctapi "github.com/ExtraTypical/nyct-arrival-times/internal/nyct"
 	"github.com/ExtraTypical/nyct-arrival-times/internal/stations"
 )
@@ -18,6 +19,7 @@ type Train struct {
 	RouteID    string
 	Direction  string
 	ArrivingIn string
+	LastStop   string
 }
 
 func CheckArrivalTimes(nyctStopId string, nyctDirection string, trainsToReturn int) (Response, error) {
@@ -57,10 +59,17 @@ func CheckArrivalTimes(nyctStopId string, nyctDirection string, trainsToReturn i
 		timeUntilArrival := time.Until(trip.ArrivalTime)
 		// fmt.Printf("Route %s %s arriving in %v\n", trip.RouteID, trip.Direction, timeUntilArrival.Round(time.Minute))
 
+		fmt.Println(len(trip.LastStop) - 1)
+		lastStopName, err := stations.LoadLocalStation(strings.TrimRight(trip.LastStop, "NSWE"), stationsData)
+		if err != nil {
+			return Response{}, err
+		}
+
 		train := Train{
 			RouteID:    trip.RouteID,
 			Direction:  trip.Direction,
 			ArrivingIn: format.Duration(timeUntilArrival),
+			LastStop:   lastStopName.StationName,
 		}
 
 		response.Trains = append(response.Trains, train)
